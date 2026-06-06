@@ -1,0 +1,162 @@
+"use client"
+
+import { useRef, useState, useCallback } from "react"
+import { motion } from "framer-motion"
+import { Download, Share2, Check, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useCoverStore } from "@/stores/cover-store"
+import { supabase } from "@/lib/supabase/client"
+import { BgColorPicker } from "./bg-color-picker"
+import { CoverCanvas } from "./cover-canvas"
+
+export function CoverPreview() {
+  const coverData = useCoverStore((s) => s.coverData)
+  const bgColor = useCoverStore((s) => s.bgColor)
+  const isGenerating = useCoverStore((s) => s.isGenerating)
+  const isUploading = useCoverStore((s) => s.isUploading)
+  const shareUrl = useCoverStore((s) => s.shareUrl)
+  const setIsUploading = useCoverStore((s) => s.setIsUploading)
+  const setShareUrl = useCoverStore((s) => s.setShareUrl)
+
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const [downloading, setDownloading] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
+    canvasRef.current = canvas
+  }, [])
+
+  const getBlob = useCallback(async () => {
+    const canvas = canvasRef.current
+    if (!canvas) return null
+    return new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/png")
+    )
+  }, [])
+
+  const handleDownload = useCallback(async () => {
+    if (downloading) return
+    setDownloading(true)
+    try {
+      const blob = await getBlob()
+      if (!blob) return
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.download = `${coverData?.trackName ?? "cover"}-spotify.png`
+      link.href = url
+      link.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setDownloading(false)
+    }
+  }, [coverData, downloading, getBlob])
+
+  const handleShare = useCallback(async () => {
+    if (!coverData || isUploading) return
+
+    if (shareUrl) {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const blob = await getBlob()
+      if (!blob) return
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        handleDownload()
+        return
+      }
+
+      const filePath = `${user.id}/${crypto.randomUUID()}.png`
+
+      const { error: uploadError } = await supabase.storage
+        .from("user_covers")
+        .upload(filePath, blob, {
+          contentType: "image/png",
+          upsert: false,
+        })
+
+      if (uploadError) {
+        handleDownload()
+        return
+      }
+
+      const bucketUrl = process.env.NEXT_PUBLIC_SUPABASE_BUCKET_URL!
+      const url = `${bucketUrl}/${filePath}`
+      setShareUrl(url)
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      handleDownload()
+    } finally {
+      setIsUploading(false)
+    }
+  }, [coverData, isUploading, shareUrl, getBlob, setIsUploading, setShareUrl, handleDownload])
+
+  if (isGenerating) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="size-8 rounded-full border-2 border-primary border-t-transparent"
+        />
+      </div>
+    )
+  }
+
+  if (!coverData) return null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-6"
+    >
+      <div className="flex flex-col items-center gap-4">
+        <BgColorPicker />
+        <div className="w-full max-w-[420px] mx-auto">
+          <CoverCanvas data={coverData} bgColor={bgColor} onCanvas={handleCanvasReady} />
+        </div>
+      </div>
+      <div className="flex gap-2 justify-center">
+        <Button
+          onClick={handleDownload}
+          disabled={downloading}
+          variant="secondary"
+          size="sm"
+        >
+          <Download className="size-4" />
+          {downloading ? "Descargando..." : "Descargar"}
+        </Button>
+        <Button onClick={handleShare} disabled={isUploading || downloading} size="sm">
+          {isUploading ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Subiendo...
+            </>
+          ) : copied ? (
+            <>
+              <Check className="size-4" />
+              Copiado
+            </>
+          ) : (
+            <>
+              <Share2 className="size-4" />
+              Compartir
+            </>
+          )}
+        </Button>
+      </div>
+    </motion.div>
+  )
+}

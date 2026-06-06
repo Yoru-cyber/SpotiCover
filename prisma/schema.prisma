@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Cover {
+  id            String   @id @default(cuid())
+  userId        String
+  trackName     String
+  artistName    String
+  albumImageUrl String
+  spotifyUrl    String
+  bucketPath    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
