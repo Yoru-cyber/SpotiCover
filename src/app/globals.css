@@ -128,3 +128,8 @@
     @apply font-sans;
   }
 }
+@layer base {
+  button {
+    cursor: pointer;
+  }
+}
