@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useCallback } from "react"
+import { useRef, useState, useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Download, Share2, Check, Loader2, QrCode } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,7 @@ import { useCoverStore } from "@/stores/cover-store"
 import { supabase } from "@/lib/supabase/client"
 import { BgColorPicker } from "./bg-color-picker"
 import { CoverCanvas } from "./cover-canvas"
+import { ShareSheet } from "./share-sheet"
 import { cn } from "@/lib/utils"
 
 export function CoverPreview() {
@@ -18,13 +19,20 @@ export function CoverPreview() {
   const setShowSpotifyCode = useCoverStore((s) => s.setShowSpotifyCode)
   const isGenerating = useCoverStore((s) => s.isGenerating)
   const isUploading = useCoverStore((s) => s.isUploading)
-  const shareUrl = useCoverStore((s) => s.shareUrl)
   const setIsUploading = useCoverStore((s) => s.setIsUploading)
-  const setShareUrl = useCoverStore((s) => s.setShareUrl)
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [downloading, setDownloading] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    setUploadedUrl(null)
+  }, [coverData])
+
+  useEffect(() => {
+    setUploadedUrl(null)
+  }, [coverData])
 
   const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
     canvasRef.current = canvas
@@ -58,10 +66,8 @@ export function CoverPreview() {
   const handleShare = useCallback(async () => {
     if (!coverData || isUploading) return
 
-    if (shareUrl) {
-      await navigator.clipboard.writeText(shareUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+    if (uploadedUrl) {
+      setShareOpen(true)
       return
     }
 
@@ -95,16 +101,26 @@ export function CoverPreview() {
 
       const bucketUrl = process.env.NEXT_PUBLIC_SUPABASE_BUCKET_URL!
       const url = `${bucketUrl}/${filePath}`
-      setShareUrl(url)
-      await navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setUploadedUrl(url)
+      setShareOpen(true)
+
+      await fetch("/api/covers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trackName: coverData.trackName,
+          artistName: coverData.artistName,
+          albumImageUrl: coverData.albumImageUrl,
+          spotifyUrl: coverData.spotifyUrl,
+          bucketPath: filePath,
+        }),
+      })
     } catch {
       handleDownload()
     } finally {
       setIsUploading(false)
     }
-  }, [coverData, isUploading, shareUrl, getBlob, setIsUploading, setShareUrl, handleDownload])
+  }, [coverData, isUploading, uploadedUrl, getBlob, setIsUploading, handleDownload])
 
   if (isGenerating) {
     return (
@@ -165,11 +181,6 @@ export function CoverPreview() {
               <Loader2 className="size-4 animate-spin" />
               Subiendo...
             </>
-          ) : copied ? (
-            <>
-              <Check className="size-4" />
-              Copiado
-            </>
           ) : (
             <>
               <Share2 className="size-4" />
@@ -178,6 +189,17 @@ export function CoverPreview() {
           )}
         </Button>
       </div>
+
+      {uploadedUrl && coverData && (
+        <ShareSheet
+          imageUrl={uploadedUrl}
+          trackName={coverData.trackName}
+          artistName={coverData.artistName}
+          spotifyUrl={coverData.spotifyUrl}
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+        />
+      )}
     </motion.div>
   )
 }

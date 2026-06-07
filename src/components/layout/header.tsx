@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { SetStateAction, useEffect, useState } from "react"
-import { LogOut, Settings, User } from "lucide-react"
+import { LogOut, Settings, User, Image } from "lucide-react"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import {
   DropdownMenu,
@@ -77,6 +77,10 @@ export function Header() {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer">
+                    <Image className="mr-2 size-4" />
+                    <span>Galería</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push("/settings")} className="cursor-pointer">
                     <Settings className="mr-2 size-4" />
                     <span>Configuración</span>

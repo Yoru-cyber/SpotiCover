@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Search } from "lucide-react"
 import { extractTrackId } from "@/lib/spotify"
@@ -12,29 +12,26 @@ export function TrackInput() {
   const [input, setInput] = useState("")
   const [validating, setValidating] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const { setTrackId, setCoverData, setError, setIsGenerating } =
+  const { trackId, setTrackId, setCoverData, setError, setIsGenerating } =
     useCoverStore()
 
   const error = useCoverStore((s) => s.error)
+  const fetchingRef = useRef(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const handleSubmit = async () => {
-    const trackId = extractTrackId(input.trim())
-    if (!trackId) {
-      setError("Ingresa un ID o URL de Spotify válida")
-      return
-    }
+  const fetchTrack = async (id: string) => {
+    if (fetchingRef.current) return
+    fetchingRef.current = true
 
     setError(null)
-    setTrackId(trackId)
     setIsGenerating(true)
     setValidating(true)
 
     try {
-      const res = await fetch(`/api/spotify/track/${trackId}`)
+      const res = await fetch(`/api/spotify/track/${id}`)
       if (!res.ok) {
         setError("Canción no encontrada. Verifica el enlace.")
         setIsGenerating(false)
@@ -47,7 +44,29 @@ export function TrackInput() {
     } finally {
       setValidating(false)
       setIsGenerating(false)
+      fetchingRef.current = false
     }
+  }
+
+  useEffect(() => {
+    if (trackId && trackId !== input) {
+      const extracted = extractTrackId(trackId)
+      if (extracted) {
+        setInput(trackId)
+        fetchTrack(extracted)
+      }
+    }
+  }, [trackId])
+
+  const handleSubmit = async () => {
+    const trackId = extractTrackId(input.trim())
+    if (!trackId) {
+      setError("Ingresa un ID o URL de Spotify válida")
+      return
+    }
+
+    setTrackId(trackId)
+    await fetchTrack(trackId)
   }
 
   return (

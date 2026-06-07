@@ -1,12 +1,23 @@
 "use client"
 
+import { Suspense, useEffect } from "react"
 import { motion } from "framer-motion"
 import { TrackInput } from "@/components/cover/track-input"
 import { CoverPreview } from "@/components/cover/cover-preview"
 import { useCoverStore } from "@/stores/cover-store"
+import { useSearchParams } from "next/navigation"
 
-export default function Home() {
+function HomeContent() {
   const coverData = useCoverStore((s) => s.coverData)
+  const setTrackId = useCoverStore((s) => s.setTrackId)
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const trackId = searchParams.get("trackId")
+    if (trackId) {
+      setTrackId(trackId)
+    }
+  }, [searchParams, setTrackId])
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:py-16">
@@ -30,5 +41,13 @@ export default function Home() {
         {coverData && <CoverPreview />}
       </div>
     </main>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   )
 }
