@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV === "development"
 
 const cspHeader = [
   "default-src 'self'",
-  isDev ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com" : "script-src 'self' 'unsafe-eval' https://challenges.cloudflare.com",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   isDev ? "img-src 'self' data: http: https: blob:" : "img-src 'self' data: https: blob:",
   "font-src 'self'",
