@@ -6,12 +6,12 @@ const cspHeader = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
-  isDev ? "img-src 'self' data: http: https: blob:" : "img-src 'self' data: https: blob:",
+  isDev ? "img-src 'self' data: http: https: blob:" : "img-src 'self' data: https: blob: https://challenges.cloudflare.com",
   "font-src 'self'",
   isDev
-    ? "connect-src 'self' http://127.0.0.1:54321 https://*.supabase.co https://api.spotify.com https://accounts.spotify.com https://scannables.scdn.co"
-    : "connect-src 'self' https://*.supabase.co https://api.spotify.com https://accounts.spotify.com https://scannables.scdn.co",
-  "frame-src https://challenges.cloudflare.com",
+    ? "connect-src 'self' http://127.0.0.1:54321 https://*.supabase.co https://api.spotify.com https://accounts.spotify.com https://scannables.scdn.co https://challenges.cloudflare.com"
+    : "connect-src 'self' https://*.supabase.co https://api.spotify.com https://accounts.spotify.com https://scannables.scdn.co https://challenges.cloudflare.com",
+  "frame-src https://challenges.cloudflare.com https://*.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
