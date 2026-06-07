@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useCallback, useState } from "react"
+import { useT } from "@/lib/i18n/use-t"
 
 declare global {
   interface Window {
@@ -28,6 +29,7 @@ export function TurnstileWidget({ onVerify, onExpire, theme = "auto" }: Turnstil
   const containerRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const t = useT()
 
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
@@ -87,7 +89,7 @@ export function TurnstileWidget({ onVerify, onExpire, theme = "auto" }: Turnstil
       <div ref={containerRef} />
       {!loaded && (
         <button type="button" onClick={handleRetry} className="text-xs text-muted-foreground underline">
-          Cargar verificación...
+          {t("turnstile.loading")}
         </button>
       )}
     </div>

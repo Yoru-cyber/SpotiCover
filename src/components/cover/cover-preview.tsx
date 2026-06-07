@@ -10,6 +10,7 @@ import { BgColorPicker } from "./bg-color-picker"
 import { CoverCanvas } from "./cover-canvas"
 import { ShareSheet } from "./share-sheet"
 import { cn } from "@/lib/utils"
+import { useT } from "@/lib/i18n/use-t"
 
 export function CoverPreview() {
   const coverData = useCoverStore((s) => s.coverData)
@@ -25,6 +26,7 @@ export function CoverPreview() {
   const [downloading, setDownloading] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
+  const t = useT()
 
   useEffect(() => {
     setUploadedUrl(null)
@@ -158,7 +160,7 @@ export function CoverPreview() {
             )}
           </span>
           <QrCode className="size-4" />
-          Mostrar código de Spotify
+          {t("cover.showCode")}
         </button>
       </div>
       <div className="flex gap-2 justify-center">
@@ -169,18 +171,18 @@ export function CoverPreview() {
           size="sm"
         >
           <Download className="size-4" />
-          {downloading ? "Descargando..." : "Descargar"}
+          {downloading ? t("cover.downloading") : t("cover.download")}
         </Button>
         <Button onClick={handleShare} disabled={isUploading || downloading} size="sm">
           {isUploading ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Subiendo...
+              {t("cover.uploading")}
             </>
           ) : (
             <>
               <Share2 className="size-4" />
-              Compartir
+              {t("cover.share")}
             </>
           )}
         </Button>

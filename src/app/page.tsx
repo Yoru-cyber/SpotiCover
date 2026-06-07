@@ -6,11 +6,13 @@ import { TrackInput } from "@/components/cover/track-input"
 import { CoverPreview } from "@/components/cover/cover-preview"
 import { useCoverStore } from "@/stores/cover-store"
 import { useSearchParams } from "next/navigation"
+import { useT } from "@/lib/i18n/use-t"
 
 function HomeContent() {
   const coverData = useCoverStore((s) => s.coverData)
   const setTrackId = useCoverStore((s) => s.setTrackId)
   const searchParams = useSearchParams()
+  const t = useT()
 
   useEffect(() => {
     const trackId = searchParams.get("trackId")
@@ -28,11 +30,10 @@ function HomeContent() {
           className="text-center space-y-3"
         >
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">
-            Crea tu portada de Spotify
+            {t("home.title")}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
-            Pega el enlace de cualquier canción y genera una imagen
-            personalizada para descargar o compartir.
+            {t("home.subtitle")}
           </p>
         </motion.div>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { AccentProvider } from "@/components/theme/accent-provider"
+import { LangProvider } from "@/components/theme/lang-provider"
 import { Header } from "@/components/layout/header"
 import "./globals.css"
 
@@ -35,8 +36,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AccentProvider>
-            <Header />
-            {children}
+            <LangProvider>
+              <Header />
+              {children}
+            </LangProvider>
           </AccentProvider>
         </ThemeProvider>
       </body>

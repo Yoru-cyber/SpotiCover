@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Download, Share2, Check, Link, ClipboardCopy } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/i18n/use-t"
 
 interface ShareSheetProps {
   imageUrl: string
@@ -48,8 +49,9 @@ function InstagramIcon({ className }: { className?: string }) {
 
 export function ShareSheet({ imageUrl, trackName, artistName, spotifyUrl, open, onClose }: ShareSheetProps) {
   const [copied, setCopied] = useState(false)
+  const t = useT()
 
-  const text = `🎵 ${trackName} — ${artistName}\nCreado con SpotiCover`
+  const text = `🎵 ${trackName} — ${artistName}\n${t("share.createdWith")}`
 
   const supportsNativeShare = typeof navigator !== "undefined" && "share" in navigator
 
@@ -123,38 +125,38 @@ export function ShareSheet({ imageUrl, trackName, artistName, spotifyUrl, open, 
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Compartir</h3>
+              <h3 className="text-lg font-semibold">{t("share.title")}</h3>
               <button onClick={onClose} className="text-muted-foreground hover:text-foreground cursor-pointer">
                 <X className="size-5" />
               </button>
             </div>
 
             <div className="flex gap-3 justify-center mb-6">
-              <ShareButton icon={<WhatsAppIcon className="size-5" />} label="WhatsApp" color="bg-green-500" onClick={handleDownload} />
-              <ShareButton icon={<TelegramIcon className="size-5" />} label="Telegram" color="bg-blue-500" onClick={handleDownload} />
-              <ShareButton icon={<InstagramIcon className="size-5" />} label="Instagram" color="bg-pink-500" onClick={handleCopyImage} />
-              <ShareButton icon={<XLogo className="size-5" />} label="Twitter" color="bg-sky-500" onClick={handleTwitter} />
+              <ShareButton icon={<WhatsAppIcon className="size-5" />} label={t("share.whatsapp")} color="bg-green-500" onClick={handleDownload} />
+              <ShareButton icon={<TelegramIcon className="size-5" />} label={t("share.telegram")} color="bg-blue-500" onClick={handleDownload} />
+              <ShareButton icon={<InstagramIcon className="size-5" />} label={t("share.instagram")} color="bg-pink-500" onClick={handleCopyImage} />
+              <ShareButton icon={<XLogo className="size-5" />} label={t("share.twitter")} color="bg-sky-500" onClick={handleTwitter} />
               {supportsNativeShare && (
-                <ShareButton icon={<Share2 className="size-5" />} label="Más" color="bg-foreground" onClick={handleNativeShare} />
+                <ShareButton icon={<Share2 className="size-5" />} label={t("share.more")} color="bg-foreground" onClick={handleNativeShare} />
               )}
             </div>
 
             <div className="flex gap-2">
               <Button onClick={handleCopyImage} variant="outline" className="flex-1 gap-2">
                 <ClipboardCopy className="size-4" />
-                Copiar imagen
+                {t("share.copyImage")}
               </Button>
               <Button onClick={handleDownload} variant="outline" className="flex-1 gap-2">
                 <Download className="size-4" />
-                Descargar
+                {t("share.download")}
               </Button>
             </div>
 
             <Button onClick={handleCopyLink} variant="ghost" className="w-full gap-2 mt-2 text-muted-foreground">
               {copied ? (
-                <><Check className="size-4" /> Enlace copiado</>
+                <><Check className="size-4" /> {t("share.linkCopied")}</>
               ) : (
-                <><Link className="size-4" /> Copiar enlace público</>
+                <><Link className="size-4" /> {t("share.copyLink")}</>
               )}
             </Button>
           </motion.div>

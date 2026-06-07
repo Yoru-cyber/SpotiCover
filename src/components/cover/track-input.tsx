@@ -7,6 +7,7 @@ import { extractTrackId } from "@/lib/spotify"
 import { useCoverStore } from "@/stores/cover-store"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useT } from "@/lib/i18n/use-t"
 
 export function TrackInput() {
   const [input, setInput] = useState("")
@@ -17,6 +18,7 @@ export function TrackInput() {
 
   const error = useCoverStore((s) => s.error)
   const fetchingRef = useRef(false)
+  const t = useT()
 
   useEffect(() => {
     setMounted(true)
@@ -33,14 +35,14 @@ export function TrackInput() {
     try {
       const res = await fetch(`/api/spotify/track/${id}`)
       if (!res.ok) {
-        setError("Canción no encontrada. Verifica el enlace.")
+        setError(t("track.error.notfound"))
         setIsGenerating(false)
         return
       }
       const data = await res.json()
       setCoverData(data)
     } catch {
-      setError("Error al obtener los datos. Intenta de nuevo.")
+      setError(t("track.error.fetch"))
     } finally {
       setValidating(false)
       setIsGenerating(false)
@@ -61,7 +63,7 @@ export function TrackInput() {
   const handleSubmit = async () => {
     const trackId = extractTrackId(input.trim())
     if (!trackId) {
-      setError("Ingresa un ID o URL de Spotify válida")
+      setError(t("track.error.invalid"))
       return
     }
 
@@ -86,7 +88,7 @@ export function TrackInput() {
               if (error) setError(null)
             }}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder="Pega el enlace o ID de la canción..."
+            placeholder={t("track.placeholder")}
             className={cn(
               "w-full h-10 pl-9 pr-4 rounded-lg border border-border bg-background",
               "text-sm placeholder:text-muted-foreground/60",
@@ -96,7 +98,7 @@ export function TrackInput() {
           />
         </div>
         <Button onClick={handleSubmit} disabled={mounted && (validating || !input.trim())}>
-          {validating ? "..." : "Generar"}
+          {validating ? "..." : t("track.submit")}
         </Button>
       </div>
       {error && (

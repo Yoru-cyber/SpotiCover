@@ -4,6 +4,7 @@ import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Trash2, Download, Eye, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/i18n/use-t"
 
 interface CoverCardProps {
   id: string
@@ -29,6 +30,7 @@ export function CoverCard({
   const router = useRouter()
   const [deleting, setDeleting] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const t = useT()
 
   const thumbnailUrl = `${bucketUrl}/${bucketPath}`
 
@@ -89,7 +91,7 @@ export function CoverCard({
           size="icon"
           variant="secondary"
           className="size-9"
-          title="Descargar"
+          title={t("card.download")}
         >
           <Download className="size-4" />
         </Button>
@@ -98,7 +100,7 @@ export function CoverCard({
           size="icon"
           variant="secondary"
           className="size-9"
-          title="Vista previa"
+          title={t("card.preview")}
         >
           <Eye className="size-4" />
         </Button>
@@ -107,7 +109,7 @@ export function CoverCard({
           size="icon"
           variant="secondary"
           className="size-9"
-          title="Editar"
+          title={t("card.edit")}
         >
           <Pencil className="size-4" />
         </Button>
@@ -117,7 +119,7 @@ export function CoverCard({
           variant={confirming ? "destructive" : "secondary"}
           className="size-9"
           disabled={deleting}
-          title="Eliminar"
+          title={t("card.delete")}
         >
           <Trash2 className="size-4" />
         </Button>
@@ -125,7 +127,7 @@ export function CoverCard({
       {confirming && (
         <div className="absolute bottom-0 left-0 right-0 bg-destructive/90 px-3 py-1.5 text-center">
           <p className="text-xs font-medium text-destructive-foreground">
-            Presiona de nuevo para confirmar
+            {t("card.confirmDelete")}
           </p>
         </div>
       )}

@@ -7,6 +7,7 @@ import { Mail, ArrowRight, AlertCircle } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { TurnstileWidget } from "./turnstile-widget"
+import { useT } from "@/lib/i18n/use-t"
 
 export function LoginForm({ error: paramError }: { error?: string }) {
   const [email, setEmail] = useState("")
@@ -19,6 +20,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
     text: string
   } | null>(null)
   const router = useRouter()
+  const t = useT()
 
   const handleTurnstileVerify = useCallback((token: string) => {
     setTurnstileToken(token)
@@ -34,7 +36,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
     setMessage(null)
 
     if (!turnstileToken) {
-      setMessage({ type: "error", text: "Completa la verificación de seguridad." })
+      setMessage({ type: "error", text: t("login.error.turnstile") })
       setLoading(false)
       return
     }
@@ -47,7 +49,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
     const verifyData = await verifyRes.json()
 
     if (!verifyData.success) {
-      setMessage({ type: "error", text: "Verificación de seguridad fallida. Intenta de nuevo." })
+      setMessage({ type: "error", text: t("login.error.turnstile.failed") })
       setTurnstileToken(null)
       setLoading(false)
       return
@@ -61,7 +63,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
     if (authError) {
       const messageText =
         authError.message === "User already registered"
-          ? "Este email ya está registrado. Inicia sesión."
+          ? t("login.error.registered")
           : authError.message
       setMessage({ type: "error", text: messageText })
       setLoading(false)
@@ -71,7 +73,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
     if (mode === "signup") {
       setMessage({
         type: "success",
-        text: "Revisa tu email para confirmar la cuenta.",
+        text: t("login.success.signup"),
       })
       setLoading(false)
       return
@@ -95,7 +97,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
         <div className="text-center space-y-1.5">
           <h1 className="text-2xl font-bold tracking-tight">SpotiCover</h1>
           <p className="text-sm text-muted-foreground">
-            {mode === "login" ? "Inicia sesión" : "Crea tu cuenta"}
+            {mode === "login" ? t("login.title.login") : t("login.title.signup")}
           </p>
         </div>
 
@@ -107,7 +109,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
+                placeholder={t("login.email")}
                 required
                 className="w-full h-10 pl-9 pr-4 rounded-lg border border-border bg-background text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-colors"
               />
@@ -116,7 +118,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Contraseña"
+              placeholder={t("login.password")}
               required
               minLength={6}
               className="w-full h-10 px-4 rounded-lg border border-border bg-background text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring transition-colors"
@@ -128,7 +130,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
           {paramError && (
             <div className="flex items-center gap-2 text-xs text-destructive">
               <AlertCircle className="size-3.5" />
-              Error de autenticación. Intenta de nuevo.
+              {t("login.error.auth")}
             </div>
           )}
 
@@ -143,10 +145,10 @@ export function LoginForm({ error: paramError }: { error?: string }) {
 
           <Button type="submit" className="w-full" disabled={loading || !turnstileToken}>
             {loading ? (
-              "Cargando..."
+              t("login.loading")
             ) : (
               <>
-                {mode === "login" ? "Entrar" : "Registrarme"}
+                {mode === "login" ? t("login.submit.login") : t("login.submit.signup")}
                 <ArrowRight className="size-4" />
               </>
             )}
@@ -156,7 +158,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
         <p className="text-center text-xs text-muted-foreground">
           {mode === "login" ? (
             <>
-              ¿No tienes cuenta?{" "}
+              {t("login.toggle.signup")}{" "}
               <button
                 type="button"
                 onClick={() => {
@@ -165,12 +167,12 @@ export function LoginForm({ error: paramError }: { error?: string }) {
                 }}
                 className="text-primary hover:underline"
               >
-                Regístrate
+                {t("login.toggle.signup.link")}
               </button>
             </>
           ) : (
             <>
-              ¿Ya tienes cuenta?{" "}
+              {t("login.toggle.login")}{" "}
               <button
                 type="button"
                 onClick={() => {
@@ -179,7 +181,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
                 }}
                 className="text-primary hover:underline"
               >
-                Inicia sesión
+                {t("login.toggle.login.link")}
               </button>
             </>
           )}

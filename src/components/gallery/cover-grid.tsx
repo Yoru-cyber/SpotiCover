@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
 import { CoverCard } from "./cover-card"
+import { useT } from "@/lib/i18n/use-t"
 
 interface Cover {
   id: string
@@ -18,6 +19,7 @@ export function CoverGrid() {
   const [covers, setCovers] = useState<Cover[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const t = useT()
 
   const bucketUrl = process.env.NEXT_PUBLIC_SUPABASE_BUCKET_URL!
 
@@ -47,7 +49,7 @@ export function CoverGrid() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-destructive">Error al cargar: {error}</p>
+        <p className="text-sm text-destructive">{t("gallery.error")} {error}</p>
       </div>
     )
   }
@@ -55,9 +57,9 @@ export function CoverGrid() {
   if (covers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-lg font-medium">No tienes portadas guardadas</p>
+        <p className="text-lg font-medium">{t("gallery.empty.title")}</p>
         <p className="text-sm text-muted-foreground mt-1">
-          Genera una portada y compártela para guardarla aquí.
+          {t("gallery.empty.description")}
         </p>
       </div>
     )

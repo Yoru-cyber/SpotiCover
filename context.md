@@ -11,6 +11,7 @@ Next.js 16 (App Router) · TailwindCSS v4 · Shadcn/ui · TypeScript · Supabase
 ```
 src/
 ├── app/
+│   ├── api/auth/account/route.ts                 # DELETE eliminar cuenta (covers + bucket + usuario Supabase)
 │   ├── api/auth/verify-turnstile/route.ts       # POST verificar token Cloudflare Turnstile
 │   ├── api/spotify/track/[...slug]/route.ts     # Proxy Spotify (Client Credentials)
 │   ├── api/spotify/user-stats/route.ts          # GET top tracks/artists (user token)
@@ -70,6 +71,7 @@ src/
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=          # Admin key para eliminar usuarios — server-side only
 NEXT_PUBLIC_SUPABASE_BUCKET_URL=
 NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 TURNSTILE_SECRET_KEY=
@@ -117,3 +119,4 @@ LOG_LEVEL=                          # debug | info | warn | error (default: info
 - `feat(gallery): add saved covers gallery with CRUD API, share-sheet, and gallery UI`
 - `fix(auth): improve duplicate registration error handling and add unique constraints to Cover model`
 - `feat(security): add rate limiting, Pino logger, CSP headers, Turnstile CAPTCHA, and input validation`
+- `feat(settings): add account deletion with covers cleanup and Supabase admin API`
