@@ -16,18 +16,25 @@ const bgColors: Record<BgColor, string> = {
   green: "#22c55e",
   teal: "#14b8a6",
   slate: "#64748b",
+  custom: "#ec4899",
 }
 
 function drawCover(
   ctx: CanvasRenderingContext2D,
   data: CoverData,
-  bgColor: BgColor
+  bgColor: BgColor,
+  customBgColor: string,
+  showSpotifyCode: boolean
 ) {
-  const color = bgColors[bgColor]
+  const color = bgColor === "custom" ? customBgColor : bgColors[bgColor]
+
+  // Forzar suavizado de alta calidad al redimensionar para el contenedor de 420px
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = "high"
 
   const grad = ctx.createLinearGradient(0, 0, W, H)
   grad.addColorStop(0, color)
-  grad.addColorStop(1, "rgba(0,0,0,0.3)")
+  grad.addColorStop(1, "rgba(0,0,0,0.4)")
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, W, H)
 
@@ -38,39 +45,51 @@ function drawCover(
   const img = new Image()
   img.crossOrigin = "anonymous"
   img.src = data.albumImageUrl
-  img.onload = () => {
-    ctx.save()
-    ctx.beginPath()
-    ctx.roundRect(imgX, imgY, imgSize, imgSize, 16)
-    ctx.clip()
-    ctx.drawImage(img, imgX, imgY, imgSize, imgSize)
-    ctx.restore()
 
-    ctx.shadowColor = "rgba(0,0,0,0.3)"
-    ctx.shadowBlur = 20
-    ctx.shadowOffsetY = 8
-    ctx.beginPath()
-    ctx.roundRect(imgX, imgY, imgSize, imgSize, 16)
-    ctx.strokeStyle = "transparent"
-    ctx.stroke()
-    ctx.shadowColor = "transparent"
-    ctx.shadowBlur = 0
-    ctx.shadowOffsetY = 0
+  // Función centralizada para dibujar las capas en orden correcto cuando todo cargue
+  const renderAll = () => {
+    ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, W, H)
 
+    drawClippedImage(ctx, img, imgX, imgY, imgSize)
     drawText(ctx, data)
-    drawAttribution(ctx)
+    if(showSpotifyCode) drawAttribution(ctx, data, color)
   }
 
-  if (img.complete) {
-    ctx.save()
-    ctx.beginPath()
-    ctx.roundRect(imgX, imgY, imgSize, imgSize, 16)
-    ctx.clip()
-    ctx.drawImage(img, imgX, imgY, imgSize, imgSize)
-    ctx.restore()
-    drawText(ctx, data)
-    drawAttribution(ctx)
+  img.onload = renderAll
+  if (img.complete) renderAll()
+}
+
+function drawClippedImage(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  x: number,
+  y: number,
+  size: number
+) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.roundRect(x, y, size, size, 32)
+  ctx.clip()
+  try {
+    ctx.drawImage(img, x, y, size, size)
+  } catch (e) {
+    ctx.fillStyle = "rgba(255,255,255,0.1)"
+    ctx.fillRect(x, y, size, size)
   }
+  ctx.restore()
+
+  ctx.shadowColor = "rgba(0,0,0,0.4)"
+  ctx.shadowBlur = 40
+  ctx.shadowOffsetY = 16
+  ctx.beginPath()
+  ctx.roundRect(x, y, size, size, 32)
+  ctx.strokeStyle = "transparent"
+  ctx.stroke()
+  ctx.shadowColor = "transparent"
+  ctx.shadowBlur = 0
+  ctx.shadowOffsetY = 0
 }
 
 function drawText(ctx: CanvasRenderingContext2D, data: CoverData) {
@@ -78,12 +97,12 @@ function drawText(ctx: CanvasRenderingContext2D, data: CoverData) {
   ctx.textBaseline = "top"
 
   ctx.fillStyle = "white"
-  ctx.font = `bold 40px "Inter", system-ui, sans-serif`
-  wrapText(ctx, data.trackName, W / 2, H * 0.74, W * 0.8, 48)
+  ctx.font = `bold 52px "Inter", system-ui, sans-serif`
+  wrapText(ctx, data.trackName, W / 2, H * 0.72, W * 0.85, 64)
 
   ctx.fillStyle = "rgba(255,255,255,0.7)"
-  ctx.font = `28px "Inter", system-ui, sans-serif`
-  wrapText(ctx, data.artistName, W / 2, H * 0.74 + 56 + 16, W * 0.8, 34)
+  ctx.font = `36px "Inter", system-ui, sans-serif`
+  wrapText(ctx, data.artistName, W / 2, H * 0.72 + 110, W * 0.85, 46)
 }
 
 function wrapText(
@@ -110,21 +129,71 @@ function wrapText(
   if (line) ctx.fillText(line, x, ly)
 }
 
-function drawAttribution(ctx: CanvasRenderingContext2D) {
+// PASO 2: Recibimos el string del color aquí
+function drawAttribution(ctx: CanvasRenderingContext2D, data: CoverData, hexColor: string) {
+  const textString = "Listen on Spotify"
+  const logoSize = 48 
+  const gap = 20 
+
+  // Configuración base de tipografía para medir
+  ctx.font = `40px "Inter", system-ui, sans-serif`
+  const textWidth = ctx.measureText(textString).width
+  
+  // Calculamos el bloque unificado (Logo + Espacio + Texto) alineado a la derecha de forma consistente
+  const totalWidth = logoSize + gap + textWidth
+  const groupX = W - totalWidth - 60
+  const groupY = H - 60
+
+  // 1. Render de Texto unificado
   ctx.fillStyle = "rgba(255,255,255,0.6)"
-  ctx.font = `18px "Inter", system-ui, sans-serif`
-  ctx.textAlign = "right"
+  ctx.textAlign = "left" 
   ctx.textBaseline = "bottom"
-  ctx.fillText("Listen on Spotify", W - 24, H - 24)
+  ctx.fillText(textString, groupX + logoSize + gap, groupY - 60)
+
+  // 2. Extracción e inyección del código Scannable integrado
+  const trackIdMatch = data.spotifyUrl?.match(/track\/([a-zA-Z0-9]+)/)
+  const trackId = trackIdMatch ? trackIdMatch[1] : null
+
+  if (trackId) {
+    // 3. Limpiamos el color quitándole el '#' para enviarlo seguro a la API de Spotify
+    const darkenHex = (hex: string, factor = 0.9) => {
+      const num = parseInt(hex, 16);
+      const r = Math.floor(((num >> 16) & 0xFF) * factor);
+      const g = Math.floor(((num >> 8) & 0xFF) * factor);
+      const b = Math.floor((num & 0xFF) * factor);
+      return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    };
+    const cleanHex = darkenHex(hexColor.replace("#", ""), 0.5);
+    const codeImg = new Image()
+    codeImg.crossOrigin = "anonymous"
+    
+    // 4. Inyectamos el color dinámico en el slot de las barras, y le ponemos barras blancas
+    codeImg.src = `https://scannables.scdn.co/uri/plain/png/${cleanHex}/white/400/spotify:track:${trackId}`
+    
+    const codeWidth = 240 
+    const codeHeight = 60
+
+    // 5. Posición alineada simétricamente encima de nuestro bloque unificado
+    const codeX = W - codeWidth - 100
+    const codeY = groupY - codeHeight + 20
+
+    const renderCode = () => {
+      ctx.drawImage(codeImg, codeX, codeY, codeWidth, codeHeight)
+    }
+    codeImg.onload = renderCode
+    if (codeImg.complete) renderCode()
+  }
 }
 
 interface CoverCanvasProps {
   data: CoverData
   bgColor: BgColor
+  customBgColor: string
+  showSpotifyCode: boolean
   onCanvas?: (canvas: HTMLCanvasElement) => void
 }
 
-export function CoverCanvas({ data, bgColor, onCanvas }: CoverCanvasProps) {
+export function CoverCanvas({ data, bgColor, customBgColor, showSpotifyCode, onCanvas }: CoverCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -132,9 +201,10 @@ export function CoverCanvas({ data, bgColor, onCanvas }: CoverCanvasProps) {
     if (!canvas) return
     const ctx = canvas.getContext("2d")
     if (!ctx) return
-    drawCover(ctx, data, bgColor)
+
+    drawCover(ctx, data, bgColor, customBgColor, showSpotifyCode)
     if (onCanvas) onCanvas(canvas)
-  }, [data, bgColor, onCanvas])
+  }, [data, bgColor, customBgColor, showSpotifyCode, onCanvas])
 
   return (
     <motion.div

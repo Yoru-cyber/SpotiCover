@@ -2,16 +2,20 @@
 
 import { useRef, useState, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Download, Share2, Check, Loader2 } from "lucide-react"
+import { Download, Share2, Check, Loader2, QrCode } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCoverStore } from "@/stores/cover-store"
 import { supabase } from "@/lib/supabase/client"
 import { BgColorPicker } from "./bg-color-picker"
 import { CoverCanvas } from "./cover-canvas"
+import { cn } from "@/lib/utils"
 
 export function CoverPreview() {
   const coverData = useCoverStore((s) => s.coverData)
   const bgColor = useCoverStore((s) => s.bgColor)
+  const customBgColor = useCoverStore((s) => s.customBgColor)
+  const showSpotifyCode = useCoverStore((s) => s.showSpotifyCode)
+  const setShowSpotifyCode = useCoverStore((s) => s.setShowSpotifyCode)
   const isGenerating = useCoverStore((s) => s.isGenerating)
   const isUploading = useCoverStore((s) => s.isUploading)
   const shareUrl = useCoverStore((s) => s.shareUrl)
@@ -125,8 +129,25 @@ export function CoverPreview() {
       <div className="flex flex-col items-center gap-4">
         <BgColorPicker />
         <div className="w-full max-w-[420px] mx-auto">
-          <CoverCanvas data={coverData} bgColor={bgColor} onCanvas={handleCanvasReady} />
+          <CoverCanvas data={coverData} bgColor={bgColor} customBgColor={customBgColor} showSpotifyCode={showSpotifyCode} onCanvas={handleCanvasReady} />
         </div>
+        <button
+          onClick={() => setShowSpotifyCode(!showSpotifyCode)}
+          className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none"
+        >
+          <span
+            className={cn(
+              "relative size-4 rounded border transition-colors",
+              showSpotifyCode ? "bg-primary border-primary" : "border-border"
+            )}
+          >
+            {showSpotifyCode && (
+              <Check className="absolute inset-0 size-full p-0.5 text-primary-foreground" />
+            )}
+          </span>
+          <QrCode className="size-4" />
+          Mostrar código de Spotify
+        </button>
       </div>
       <div className="flex gap-2 justify-center">
         <Button

@@ -1,12 +1,14 @@
 import { create } from "zustand"
 import type { CoverData } from "@/types/spotify"
 
-export type BgColor = "pink" | "blue" | "purple" | "orange" | "green" | "teal" | "slate"
+export type BgColor = "pink" | "blue" | "purple" | "orange" | "green" | "teal" | "slate" | "custom"
 
 interface CoverState {
   trackId: string | null
   coverData: CoverData | null
   bgColor: BgColor
+  customBgColor: string
+  showSpotifyCode: boolean
   isGenerating: boolean
   isDownloading: boolean
   isUploading: boolean
@@ -15,6 +17,8 @@ interface CoverState {
   setTrackId: (id: string) => void
   setCoverData: (data: CoverData) => void
   setBgColor: (color: BgColor) => void
+  setCustomBgColor: (color: string) => void
+  setShowSpotifyCode: (show: boolean) => void
   setIsGenerating: (value: boolean) => void
   setIsDownloading: (value: boolean) => void
   setIsUploading: (value: boolean) => void
@@ -27,6 +31,8 @@ const initialState = {
   trackId: null,
   coverData: null,
   bgColor: "pink" as BgColor,
+  customBgColor: "#ec4899",
+  showSpotifyCode: true,
   isGenerating: false,
   isDownloading: false,
   isUploading: false,
@@ -39,6 +45,8 @@ export const useCoverStore = create<CoverState>((set) => ({
   setTrackId: (trackId) => set({ trackId }),
   setCoverData: (coverData) => set({ coverData }),
   setBgColor: (bgColor) => set({ bgColor }),
+  setCustomBgColor: (customBgColor) => set({ customBgColor }),
+  setShowSpotifyCode: (showSpotifyCode) => set({ showSpotifyCode }),
   setIsGenerating: (isGenerating) => set({ isGenerating }),
   setIsDownloading: (isDownloading) => set({ isDownloading }),
   setIsUploading: (isUploading) => set({ isUploading }),

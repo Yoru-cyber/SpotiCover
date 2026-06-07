@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { SetStateAction, useEffect, useState } from "react"
 import { LogOut, Settings, User } from "lucide-react"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import {
@@ -23,7 +23,8 @@ export function Header() {
 
   useEffect(() => {
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: { user: { email: SetStateAction<string | null> } }) => {
       if (session?.user?.email) {
         setEmail(session.user.email)
       } else {

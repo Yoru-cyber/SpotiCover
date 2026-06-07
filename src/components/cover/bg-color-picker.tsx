@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { useCoverStore, type BgColor } from "@/stores/cover-store"
 import { cn } from "@/lib/utils"
+import { ColorPickerPopover } from "./color-picker-popover"
 
 const colors: { key: BgColor; label: string; bg: string }[] = [
   { key: "pink", label: "Rosa", bg: "bg-pink-500" },
@@ -39,6 +40,7 @@ export function BgColorPicker() {
           )}
         </button>
       ))}
+      <ColorPickerPopover />
     </div>
   )
 }

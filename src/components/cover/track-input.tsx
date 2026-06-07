@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Search } from "lucide-react"
 import { extractTrackId } from "@/lib/spotify"
@@ -11,10 +11,15 @@ import { cn } from "@/lib/utils"
 export function TrackInput() {
   const [input, setInput] = useState("")
   const [validating, setValidating] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { setTrackId, setCoverData, setError, setIsGenerating } =
     useCoverStore()
 
   const error = useCoverStore((s) => s.error)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSubmit = async () => {
     const trackId = extractTrackId(input.trim())
@@ -71,7 +76,7 @@ export function TrackInput() {
             )}
           />
         </div>
-        <Button onClick={handleSubmit} disabled={validating || !input.trim()}>
+        <Button onClick={handleSubmit} disabled={mounted && (validating || !input.trim())}>
           {validating ? "..." : "Generar"}
         </Button>
       </div>

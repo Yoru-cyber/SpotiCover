@@ -13,23 +13,27 @@ src/
 ├── app/
 │   ├── api/spotify/track/[...slug]/route.ts  # Proxy Spotify (Client Credentials)
 │   ├── auth/{callback,login}/                 # Auth Supabase
+│   ├── settings/page.tsx                      # Configuración (acento, idioma)
 │   ├── layout.tsx                             # Inter font + ThemeProvider
 │   └── page.tsx                               # Home
 ├── proxy.ts                                   # Auth guard
 ├── components/
 │   ├── auth/login-form.tsx
-│   ├── layout/header.tsx
-│   ├── theme/{accent-picker,accent-provider,theme-toggle}
+│   ├── layout/header.tsx                      # ThemeToggle + settings + user email + logout
+│   ├── theme/{accent-provider,theme-toggle}
 │   ├── ui/button.tsx
 │   └── cover/
 │       ├── cover-canvas.tsx                   # Canvas nativo 1200x1200
-│       ├── cover-preview.tsx                  # Preview + download/share
+│       ├── cover-preview.tsx                  # Preview + download/share + toggle código
 │       ├── bg-color-picker.tsx                # 7 colores de fondo
+│       ├── color-picker-popover.tsx           # Color picker custom (HexColorPicker + HEX/RGB input + debounce)
 │       └── track-input.tsx
 ├── lib/
 │   ├── utils.ts · spotify.ts
 │   └── supabase/{client,server,middleware}.ts
-├── stores/{cover-store,theme-store}.ts
+├── stores/
+│   ├── cover-store.ts                         # Estado del cover (bgColor, customBgColor, showSpotifyCode, etc.)
+│   └── theme-store.ts                         # Acento + idioma (persistido)
 └── types/spotify.ts
 ```
 
@@ -37,9 +41,10 @@ src/
 
 1. Auth (email/password) → proxy protege rutas
 2. Pegar URL/ID de Spotify → API route proxy → metadatos
-3. Canvas nativo: fondo color sólido + carátula + textos + atribución
-4. Descarga: `canvas.toBlob()` → PNG 1200x1200
-5. Compartir: upload a Supabase bucket `user_covers` → URL pública
+3. Canvas nativo: fondo gradiente + carátula + textos + logo Spotify + código scannable (opcional)
+4. Color picker custom con react-colorful (HEX + RGB inputs, debounce 200ms si el código está activo)
+5. Descarga: `canvas.toBlob()` → PNG 1200x1200
+6. Compartir: upload a Supabase bucket `user_covers` → URL pública
 
 ## Variables de Entorno
 
