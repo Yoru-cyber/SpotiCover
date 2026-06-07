@@ -95,17 +95,13 @@ LOG_LEVEL=                          # debug | info | warn | error (default: info
 
 ## Pendiente
 
-- [ ] `pnpm run supabase:start` + `db:push`
-- [ ] Configurar Supabase Cloud (auth, bucket, redirect URL)
 - [ ] Stats: modelo `SpotifyToken` en Prisma
 - [ ] Stats: Spotify OAuth PKCE (`/auth/spotify`, `/auth/spotify/callback`)
 - [ ] Stats: API `/api/spotify/user-stats` con proxy server-side
 - [ ] Stats: UI (connect-spotify, time-range-selector, top-tracks, top-artists, stats page)
 
-## Seguridad
-
 - Rate limiting en todos los endpoints API (in-memory sliding window)
-- CSP headers con allowlist por entorno (dev vs prod)
+- CSP headers con allowlist (Turnstile, Supabase, Spotify)
 - Turnstile anti-bot en login/signup
 - Validación de input con tipos y límites de longitud
 - Ownership check en DELETE covers
@@ -116,7 +112,6 @@ LOG_LEVEL=                          # debug | info | warn | error (default: info
 
 ## Historial de cambios recientes
 
-- `feat(gallery): add saved covers gallery with CRUD API, share-sheet, and gallery UI`
-- `fix(auth): improve duplicate registration error handling and add unique constraints to Cover model`
-- `feat(security): add rate limiting, Pino logger, CSP headers, Turnstile CAPTCHA, and input validation`
-- `feat(settings): add account deletion with covers cleanup and Supabase admin API`
+- `fix(security): remove .env.production with plaintext secrets, fix proxy.ts function name for Next.js 16`
+- `fix(csp): add 'unsafe-inline' and challenges.cloudflare.com to CSP for Turnstile in production`
+- `chore(deploy): configure Vercel build command to run prisma generate before next build`
