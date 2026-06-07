@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { SetStateAction, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { LogOut, Settings, User, Image } from "lucide-react"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import {
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { supabase } from "@/lib/supabase/client"
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
 import Link from "next/link"
 
 export function Header() {
@@ -22,16 +23,16 @@ export function Header() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: { user: { email: SetStateAction<string | null> } }) => {
-      if (session?.user?.email) {
-        setEmail(session.user.email)
-      } else {
-        setEmail(null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        if (session?.user?.email) {
+          setEmail(session.user.email)
+        } else {
+          setEmail(null)
+        }
+        setLoading(false)
       }
-      setLoading(false)
-    })
+    )
     return () => {
       subscription.unsubscribe()
     }

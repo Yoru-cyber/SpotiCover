@@ -19,5 +19,5 @@ export interface CoverData {
   artistName: string
   albumImageUrl: string
   spotifyUrl: string
-  dominantColor: string
+  dominantColor?: string
 }

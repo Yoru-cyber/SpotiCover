@@ -30,10 +30,6 @@ export function CoverPreview() {
     setUploadedUrl(null)
   }, [coverData])
 
-  useEffect(() => {
-    setUploadedUrl(null)
-  }, [coverData])
-
   const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
     canvasRef.current = canvas
   }, [])

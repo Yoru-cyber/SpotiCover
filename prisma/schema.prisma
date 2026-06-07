@@ -14,9 +14,10 @@ model Cover {
   artistName    String
   albumImageUrl String
   spotifyUrl    String
-  bucketPath    String
+  bucketPath    String   @unique
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@unique([userId, spotifyUrl])
   @@index([userId])
 }

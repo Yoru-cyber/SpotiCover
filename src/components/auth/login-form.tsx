@@ -1,28 +1,57 @@
 "use client"
 
-import { useState }
- from "react"
+import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Mail, ArrowRight, AlertCircle } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
+import { TurnstileWidget } from "./turnstile-widget"
 
 export function LoginForm({ error: paramError }: { error?: string }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [mode, setMode] = useState<"login" | "signup">("login")
   const [loading, setLoading] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [message, setMessage] = useState<{
     type: "error" | "success"
     text: string
   } | null>(null)
   const router = useRouter()
 
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token)
+  }, [])
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null)
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
+
+    if (!turnstileToken) {
+      setMessage({ type: "error", text: "Completa la verificación de seguridad." })
+      setLoading(false)
+      return
+    }
+
+    const verifyRes = await fetch("/api/auth/verify-turnstile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: turnstileToken }),
+    })
+    const verifyData = await verifyRes.json()
+
+    if (!verifyData.success) {
+      setMessage({ type: "error", text: "Verificación de seguridad fallida. Intenta de nuevo." })
+      setTurnstileToken(null)
+      setLoading(false)
+      return
+    }
 
     const { data, error: authError } =
       mode === "login"
@@ -30,7 +59,11 @@ export function LoginForm({ error: paramError }: { error?: string }) {
         : await supabase.auth.signUp({ email, password })
 
     if (authError) {
-      setMessage({ type: "error", text: authError.message })
+      const messageText =
+        authError.message === "User already registered"
+          ? "Este email ya está registrado. Inicia sesión."
+          : authError.message
+      setMessage({ type: "error", text: messageText })
       setLoading(false)
       return
     }
@@ -90,6 +123,8 @@ export function LoginForm({ error: paramError }: { error?: string }) {
             />
           </div>
 
+          <TurnstileWidget onVerify={handleTurnstileVerify} onExpire={handleTurnstileExpire} />
+
           {paramError && (
             <div className="flex items-center gap-2 text-xs text-destructive">
               <AlertCircle className="size-3.5" />
@@ -106,7 +141,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || !turnstileToken}>
             {loading ? (
               "Cargando..."
             ) : (

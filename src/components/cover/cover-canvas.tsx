@@ -44,21 +44,40 @@ function drawCover(
 
   const img = new Image()
   img.crossOrigin = "anonymous"
-  img.src = data.albumImageUrl
 
-  // Función centralizada para dibujar las capas en orden correcto cuando todo cargue
+  let corsFailed = false
+
   const renderAll = () => {
     ctx.clearRect(0, 0, W, H)
     ctx.fillStyle = grad
     ctx.fillRect(0, 0, W, H)
 
-    drawClippedImage(ctx, img, imgX, imgY, imgSize)
+    if (corsFailed) {
+      drawFallbackCover(ctx, data, imgX, imgY, imgSize)
+    } else {
+      drawClippedImage(ctx, img, imgX, imgY, imgSize)
+    }
     drawText(ctx, data)
-    if(showSpotifyCode) drawAttribution(ctx, data, color)
+    if (showSpotifyCode) drawAttribution(ctx, data, color)
   }
 
-  img.onload = renderAll
-  if (img.complete) renderAll()
+  img.onerror = () => {
+    if (img.crossOrigin === "anonymous") {
+      img.crossOrigin = null
+      corsFailed = true
+      img.src = data.albumImageUrl
+    } else {
+      corsFailed = true
+      renderAll()
+    }
+  }
+
+  img.onload = () => {
+    if (!corsFailed || img.crossOrigin !== "anonymous") {
+      renderAll()
+    }
+  }
+  img.src = data.albumImageUrl
 }
 
 function drawClippedImage(
@@ -90,6 +109,22 @@ function drawClippedImage(
   ctx.shadowColor = "transparent"
   ctx.shadowBlur = 0
   ctx.shadowOffsetY = 0
+}
+
+function drawFallbackCover(
+  ctx: CanvasRenderingContext2D,
+  _data: CoverData,
+  x: number,
+  y: number,
+  size: number
+) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.roundRect(x, y, size, size, 32)
+  ctx.clip()
+  ctx.fillStyle = "rgba(255,255,255,0.08)"
+  ctx.fillRect(x, y, size, size)
+  ctx.restore()
 }
 
 function drawText(ctx: CanvasRenderingContext2D, data: CoverData) {

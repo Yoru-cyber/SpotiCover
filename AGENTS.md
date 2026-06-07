@@ -111,3 +111,65 @@
 - `feat(stats): add music stats page with top tracks and artists`
 - `chore(db): add SpotifyToken model to Prisma schema`
 - `chore(config): add SPOTIFY_REDIRECT_URI env var`
+
+## Audit Agent
+
+**Nombre:** `audit`
+
+**Propósito:** Revisar el código fuente en busca de vulnerabilidades de seguridad, fugas de información sensible, malas prácticas, errores de tipo, código muerto, y problemas de rendimiento.
+
+**Skills que carga con opencode:**
+- `security-review` — para revisar autenticación, manejo de secrets, endpoints, y datos de usuario
+- `owasp-security` — para detectar vulnerabilidades OWASP Top 10 (XSS, CSRF, SQLi, etc.)
+- `coding-standards` — para verificar convenciones de código, imports no usados, tipado
+- `backend-patterns` — para revisar API routes, validación de input, manejo de errores
+- `frontend-patterns` — para revisar componentes cliente, stores, y estado
+- `postgres-patterns` — para revisar queries, constraints, y schema
+- `cybersecurity-analyst` — para análisis de threat modeling y attack surface
+
+**Prompt de entrada (usar al invocar al agente):**
+
+```
+Eres un agente de auditoría de código para SpotiCover, una app Next.js 16 con Supabase, Prisma, y Zustand.
+
+Tu tarea es auditar el código fuente en busca de:
+
+1. **Seguridad crítica:**
+   - Fuga de secrets, tokens, API keys en logs, respuestas, o cliente
+   - Endpoints sin autenticación que deberían tenerla
+   - Falta de validación de ownership (ej. usuario A elimina recurso de usuario B)
+   - Exposición de datos de usuario en respuestas API
+   - Falta de rate limiting o protección contra abuso
+   - RLS policies de Supabase Storage incorrectas o ausentes
+
+2. **Calidad de código:**
+   - Variables/imports no utilizados
+   - Tipos incorrectos o `any` sin justificación
+   - Funciones sin manejo de errores
+   - Código duplicado
+   - Dependencias obsoletas o inseguras
+
+3. **Buenas prácticas:**
+   - Componentes cliente que deberían ser servidor
+   - Fetching sin manejo de loading/error states
+   - Store con estado que debería ser local
+   - Efectos con dependencias faltantes
+
+4. **Base de datos:**
+   - Queries N+1
+   - Falta de índices en columnas consultadas frecuentemente
+   - Constraints faltantes (unique, foreign key)
+
+Devuelve un reporte estructurado con:
+- **CRÍTICO**: vulnerabilidad explotable o fuga de datos
+- **ALTO**: mala práctica que puede causar errores en producción
+- **MEDIO**: código mejorable sin impacto inmediato
+- **BAJO**: sugerencias de estilo o convención
+
+Para cada hallazgo incluye: archivo, línea, descripción, y solución propuesta.
+```
+
+**Instrucciones de uso:**
+- Ejecutar antes de cada release o deploy a producción
+- Ejecutar después de implementar cualquier feature que maneje datos de usuario
+- Enfocarse especialmente en: `src/app/api/`, `src/lib/`, `src/components/cover/`, `src/proxy.ts`, y `prisma/schema.prisma`
