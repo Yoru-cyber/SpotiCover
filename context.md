@@ -3,9 +3,11 @@
 App Next.js que genera portadas personalizadas estilo Spotify. Canvas nativo, sin dependencias de captura DOM.
 
 ## Stack
+
 Next.js 16 (App Router) · TailwindCSS v4 · Shadcn/ui · TypeScript · Supabase (auth + storage) · Prisma · Zustand · pnpm
 
 ## Estructura
+
 ```
 src/
 ├── app/
@@ -32,6 +34,7 @@ src/
 ```
 
 ## Flujo
+
 1. Auth (email/password) → proxy protege rutas
 2. Pegar URL/ID de Spotify → API route proxy → metadatos
 3. Canvas nativo: fondo color sólido + carátula + textos + atribución
@@ -39,6 +42,7 @@ src/
 5. Compartir: upload a Supabase bucket `user_covers` → URL pública
 
 ## Variables de Entorno
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
@@ -49,6 +53,7 @@ SPOTIFY_CLIENT_SECRET=
 ```
 
 ## Comandos
+
 | Comando | Descripción |
 |---------|-------------|
 | `pnpm run dev` | Dev server (carga `.env.local`) |
@@ -59,6 +64,7 @@ SPOTIFY_CLIENT_SECRET=
 | `pnpm run db:push` | Prisma push a BD local |
 
 ## Pendiente
+
 - [x] Variables de entorno
 - [x] Schema Prisma
 - [ ] `pnpm run supabase:start` + `db:push`
