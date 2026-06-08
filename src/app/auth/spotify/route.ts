@@ -2,6 +2,10 @@ import { NextResponse } from "next/server"
 import { generateCodeVerifier, generateCodeChallenge, getSpotifyAuthUrl } from "@/lib/spotify"
 import { logger } from "@/lib/logger"
 
+const ORIGIN = process.env.NODE_ENV === "development"
+  ? "http://127.0.0.1:3000"
+  : "https://spoticover.app"
+
 export async function GET() {
   try {
     const verifier = generateCodeVerifier()
@@ -20,6 +24,6 @@ export async function GET() {
     return response
   } catch (err) {
     logger.error({ error: err instanceof Error ? err.message : "Unknown error" }, "Failed to start Spotify OAuth")
-    return NextResponse.redirect(new URL("/stats?error=oauth", process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://localhost:3000"))
+    return NextResponse.redirect(`${ORIGIN}/stats?error=oauth`)
   }
 }

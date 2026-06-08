@@ -4,13 +4,17 @@ import { prisma } from "@/lib/prisma"
 import { exchangeCodeForToken } from "@/lib/spotify"
 import { logger } from "@/lib/logger"
 
+const ORIGIN = process.env.NODE_ENV === "development"
+  ? "http://127.0.0.1:3000"
+  : "https://spoticover.app"
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.redirect(new URL("/auth/login", request.url))
+      return NextResponse.redirect(`${ORIGIN}/auth/login`)
     }
 
     const code = request.nextUrl.searchParams.get("code")
@@ -19,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     if (error || !code) {
       logger.error({ error }, "Spotify OAuth callback error")
-      return NextResponse.redirect(new URL("/stats?error=spotify_denied", request.url))
+      return NextResponse.redirect(`${ORIGIN}/stats?error=spotify_denied`)
     }
 
     if (state) {
@@ -29,7 +33,7 @@ export async function GET(request: NextRequest) {
     const codeVerifier = request.cookies.get("spotify_code_verifier")?.value
     if (!codeVerifier) {
       logger.error("Missing code verifier cookie")
-      return NextResponse.redirect(new URL("/stats?error=no_verifier", request.url))
+      return NextResponse.redirect(`${ORIGIN}/stats?error=no_verifier`)
     }
 
     const { accessToken, refreshToken, expiresAt } = await exchangeCodeForToken(code, codeVerifier)
@@ -40,7 +44,7 @@ export async function GET(request: NextRequest) {
       update: { accessToken, refreshToken, expiresAt },
     })
 
-    const redirectResponse = NextResponse.redirect(new URL("/stats", request.url))
+    const redirectResponse = NextResponse.redirect(`${ORIGIN}/stats`)
     redirectResponse.cookies.set("spotify_code_verifier", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -52,6 +56,6 @@ export async function GET(request: NextRequest) {
     return redirectResponse
   } catch (err) {
     logger.error({ error: err instanceof Error ? err.message : "Unknown error" }, "Spotify OAuth callback failed")
-    return NextResponse.redirect(new URL("/stats?error=callback", request.url))
+    return NextResponse.redirect(`${ORIGIN}/stats?error=callback`)
   }
 }
