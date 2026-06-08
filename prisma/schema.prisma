@@ -21,3 +21,11 @@ model Cover {
   @@unique([userId, spotifyUrl])
   @@index([userId])
 }
+
+model SpotifyToken {
+  userId       String   @id
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  updatedAt    DateTime @updatedAt
+}

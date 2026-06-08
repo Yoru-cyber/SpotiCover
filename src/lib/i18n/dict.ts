@@ -339,6 +339,54 @@ export const dict = {
     es: "Reintentar verificación",
     en: "Retry verification",
   },
+  "header.stats": {
+    es: "Estadísticas",
+    en: "Stats",
+  },
+  "stats.title": {
+    es: "Tus estadísticas musicales",
+    en: "Your music stats",
+  },
+  "stats.subtitle": {
+    es: "Descubre tus canciones, artistas y géneros más escuchados",
+    en: "Discover your most listened songs, artists, and genres",
+  },
+  "stats.download": {
+    es: "Descargar",
+    en: "Download",
+  },
+  "stats.downloading": {
+    es: "Descargando...",
+    en: "Downloading...",
+  },
+  "stats.error": {
+    es: "Error",
+    en: "Error",
+  },
+  "stats.range.4weeks": {
+    es: "4 semanas",
+    en: "4 weeks",
+  },
+  "stats.range.6months": {
+    es: "6 meses",
+    en: "6 months",
+  },
+  "stats.range.alltime": {
+    es: "Siempre",
+    en: "All time",
+  },
+  "stats.connect.title": {
+    es: "Conecta tu Spotify",
+    en: "Connect your Spotify",
+  },
+  "stats.connect.description": {
+    es: "Vincula tu cuenta de Spotify para ver tus canciones y artistas más escuchados.",
+    en: "Link your Spotify account to see your most played songs and artists.",
+  },
+  "stats.connect.button": {
+    es: "Conectar Spotify",
+    en: "Connect Spotify",
+  },
   "settings.deleteAccount": {
     es: "Eliminar cuenta",
     en: "Delete account",

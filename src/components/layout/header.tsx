@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { LogOut, Settings, User, Image } from "lucide-react"
+import { LogOut, Settings, User, Image, BarChart3 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { LangToggle } from "@/components/theme/lang-toggle"
 import {
@@ -85,6 +85,10 @@ export function Header() {
                   <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer">
                     <Image className="mr-2 size-4" />
                     <span>{t("header.gallery")}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/stats")} className="cursor-pointer">
+                    <BarChart3 className="mr-2 size-4" />
+                    <span>{t("header.stats")}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push("/settings")} className="cursor-pointer">
                     <Settings className="mr-2 size-4" />
