@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma"
 import { exchangeCodeForToken } from "@/lib/spotify"
 import { logger } from "@/lib/logger"
 
-const ORIGIN = process.env.NODE_ENV === "development"
-  ? "http://127.0.0.1:3000"
-  : "https://spoticover.app"
+const ORIGIN =
+  process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:3000"
+    : "https://spoti-cover-pearl.vercel.app";
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,7 +56,8 @@ export async function GET(request: NextRequest) {
 
     return redirectResponse
   } catch (err) {
-    logger.error({ error: err instanceof Error ? err.message : "Unknown error" }, "Spotify OAuth callback failed")
-    return NextResponse.redirect(`${ORIGIN}/stats?error=callback`)
+    const message = err instanceof Error ? err.message : "Unknown error"
+    logger.error({ error: message, stack: err instanceof Error ? err.stack : undefined }, "Spotify OAuth callback failed")
+    return NextResponse.redirect(`${ORIGIN}/stats?error=callback&details=${encodeURIComponent(message)}`)
   }
 }
