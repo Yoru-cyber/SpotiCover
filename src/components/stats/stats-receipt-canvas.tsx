@@ -61,7 +61,7 @@ function drawFooter(ctx: CanvasRenderingContext2D, color: string, W: number, H: 
   ctx.fillStyle = "rgba(255,255,255,0.15)"
   ctx.font = `8px "Inter", system-ui, sans-serif`
   ctx.textAlign = "center"
-  ctx.fillText("spoticover.app", W / 2, H - 14)
+  ctx.fillText("https://spoti-cover-pearl.vercel.app/", W / 2, H - 14)
 }
 
 function drawTracks(ctx: CanvasRenderingContext2D, data: StatsData, color: string, W: number, startY: number, limit: number): number {
