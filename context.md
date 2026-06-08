@@ -4,7 +4,7 @@ App Next.js que genera portadas personalizadas estilo Spotify. Canvas nativo, si
 
 ## Stack
 
-Next.js 16 (App Router) · TailwindCSS v4 · Shadcn/ui · TypeScript · Supabase (auth + storage) · Prisma · Zustand · Pino · pnpm
+Next.js 16 (App Router) · TailwindCSS v4 · Shadcn/ui · TypeScript · Supabase (auth + storage) · Prisma · Zustand · Pino · Vitest · pnpm
 
 ## Estructura
 
@@ -17,10 +17,10 @@ src/
 │   ├── api/spotify/connection/route.ts            # GET (check) + DELETE (disconnect) Spotify token
 │   ├── api/spotify/user-stats/route.ts          # GET top tracks/artists/genres (user token OAuth)
 │   ├── api/covers/route.ts                      # GET (listar) + POST (guardar)
-│   ├── api/covers/[id]/route.ts                 # DELETE (eliminar cover + bucket file)
-│   ├── auth/{callback,login}/                   # Auth Supabase
+│   ├── api/covers/[id]/route.ts                 # DELETE (eliminar cover + bucket file) + test
+│   ├── auth/{callback,login}/                   # Auth Supabase (callback con test)
 │   ├── auth/spotify/route.ts                    # Inicia OAuth Spotify (PKCE)
-│   ├── auth/spotify/callback/route.ts           # Callback OAuth Spotify
+│   ├── auth/spotify/callback/route.ts           # Callback OAuth Spotify + test
 │   ├── gallery/page.tsx                         # Galería de portadas guardadas
 │   ├── stats/page.tsx                           # Estadísticas musicales con receipt canvas
 │   ├── settings/page.tsx                        # Configuración (acento, idioma, conexión Spotify)
@@ -92,22 +92,22 @@ LOG_LEVEL=                          # debug | info | warn | error (default: info
 |---------|-------------|
 | `pnpm run dev` | Dev server (carga `.env.local`) |
 | `pnpm run build` | TypeScript + compilación |
-| `pnpm run commit` | Conventional Commit |
+| `pnpm run commit` | Conventional Commit (interactive) |
+| `pnpm run commit:msg "type(scope): msg"` | Commit non-interactive (para agentes) |
+| `pnpm run test` | Run tests (vitest) |
+| `pnpm run test:watch` | Run tests in watch mode |
 | `pnpm run supabase:start/stop/status` | Supabase local |
 | `pnpm run check:dev/prod` | Health check conexiones |
 | `pnpm run db:push` | Prisma push a BD local |
 
 ## Pendiente
 
-- Rate limiting en todos los endpoints API (in-memory sliding window)
 - CSP headers con allowlist (Turnstile, Supabase, Spotify)
-- Turnstile anti-bot en login/signup
 - Validación de input con tipos y límites de longitud
-- Ownership check en DELETE covers
-- Open redirect prevention en auth callback
 - Logs estructurados con Pino (JSON en prod, pretty en dev)
 - RLS policies para storage bucket `user_covers`
 - Canvas crossOrigin fallback para imágenes sin CORS
+- Tests: covers POST, spotify user-stats, spotify connection, rate-limit, spotify.ts functions
 
 ## Historial de cambios recientes
 
@@ -122,3 +122,5 @@ LOG_LEVEL=                          # debug | info | warn | error (default: info
 - `refactor(stats): compact receipt canvases with separate modes (all/tracks/artists/genres)`
 - `fix(api): protect against undefined genres in Spotify API responses`
 - `feat(settings): add Spotify connection section with link/disconnect in settings page`
+- `fix(spotify): add error details logging in OAuth callback for debugging`
+- `test(auth): add critical tests for covers DELETE, auth callback, and Spotify OAuth callback`
