@@ -411,6 +411,22 @@ export const dict = {
     es: "Artista",
     en: "Artist",
   },
+  "stats.mode.all": {
+    es: "Todo",
+    en: "All",
+  },
+  "stats.mode.tracks": {
+    es: "Canciones",
+    en: "Tracks",
+  },
+  "stats.mode.artists": {
+    es: "Artistas",
+    en: "Artists",
+  },
+  "stats.mode.genres": {
+    es: "Géneros",
+    en: "Genres",
+  },
   "settings.deleteAccount": {
     es: "Eliminar cuenta",
     en: "Delete account",
