@@ -28,13 +28,16 @@ function drawCover(
 ) {
   const color = bgColor === "custom" ? customBgColor : bgColors[bgColor]
 
-  // Forzar suavizado de alta calidad al redimensionar para el contenedor de 420px
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = "high"
 
+  // Fondo opaco completo — sin transparencia
+  ctx.fillStyle = "#000000"
+  ctx.fillRect(0, 0, W, H)
+
   const grad = ctx.createLinearGradient(0, 0, W, H)
   grad.addColorStop(0, color)
-  grad.addColorStop(1, "rgba(0,0,0,0.4)")
+  grad.addColorStop(1, "#000000")
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, W, H)
 
@@ -49,6 +52,8 @@ function drawCover(
 
   const renderAll = () => {
     ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = "#000000"
+    ctx.fillRect(0, 0, W, H)
     ctx.fillStyle = grad
     ctx.fillRect(0, 0, W, H)
 

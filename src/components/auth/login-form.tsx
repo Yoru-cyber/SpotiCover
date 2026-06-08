@@ -15,6 +15,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
   const [mode, setMode] = useState<"login" | "signup">("login")
   const [loading, setLoading] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [turnstileError, setTurnstileError] = useState(false)
   const [message, setMessage] = useState<{
     type: "error" | "success"
     text: string
@@ -24,10 +25,16 @@ export function LoginForm({ error: paramError }: { error?: string }) {
 
   const handleTurnstileVerify = useCallback((token: string) => {
     setTurnstileToken(token)
+    setTurnstileError(false)
   }, [])
 
   const handleTurnstileExpire = useCallback(() => {
     setTurnstileToken(null)
+  }, [])
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken(null)
+    setTurnstileError(true)
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +132,7 @@ export function LoginForm({ error: paramError }: { error?: string }) {
             />
           </div>
 
-          <TurnstileWidget onVerify={handleTurnstileVerify} onExpire={handleTurnstileExpire} />
+          <TurnstileWidget onVerify={handleTurnstileVerify} onExpire={handleTurnstileExpire} onError={handleTurnstileError} />
 
           {paramError && (
             <div className="flex items-center gap-2 text-xs text-destructive">

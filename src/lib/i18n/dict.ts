@@ -335,6 +335,10 @@ export const dict = {
     es: "Cargar verificación...",
     en: "Load verification...",
   },
+  "turnstile.retry": {
+    es: "Reintentar verificación",
+    en: "Retry verification",
+  },
   "settings.deleteAccount": {
     es: "Eliminar cuenta",
     en: "Delete account",
