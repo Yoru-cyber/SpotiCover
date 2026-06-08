@@ -41,7 +41,7 @@ export function getSpotifyAuthUrl(codeChallenge: string): string {
     scope,
   })
 
-  return `https://accounts.spotify.com/authorize?${params.toString()}`
+  return `https://accounts.spotify.com/authorize?${params.toString()}&scope=user-top-read`;
 }
 
 export async function exchangeCodeForToken(
@@ -111,6 +111,7 @@ interface SpotifyApiTrack {
 }
 
 interface SpotifyApiArtist {
+  id: string
   name: string
   genres: string[]
   images: { url: string }[]
@@ -134,7 +135,7 @@ export async function fetchUserTopTracks(
   }
 
   const data = await res.json()
-  return data.items
+  return data.items ?? []
 }
 
 export async function fetchUserTopArtists(
@@ -154,5 +155,5 @@ export async function fetchUserTopArtists(
   }
 
   const data = await res.json()
-  return data.items
+  return data.items ?? []
 }

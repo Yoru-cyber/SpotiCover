@@ -5,18 +5,19 @@ import { Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ConnectSpotify } from "@/components/stats/connect-spotify"
 import { TimeRangeSelector } from "@/components/stats/time-range-selector"
+import { ModeSelector } from "@/components/stats/mode-selector"
 import { StatsReceiptCanvas, type ReceiptMode } from "@/components/stats/stats-receipt-canvas"
 import { BgColorPicker } from "@/components/cover/bg-color-picker"
 import { useCoverStore } from "@/stores/cover-store"
 import { useT } from "@/lib/i18n/use-t"
 import type { StatsData, TimeRange } from "@/types/spotify"
 
-const modes: { mode: ReceiptMode; labelKey: string; fileSuffix: string }[] = [
-  { mode: "all", labelKey: "stats.mode.all", fileSuffix: "all" },
-  { mode: "tracks", labelKey: "stats.mode.tracks", fileSuffix: "tracks" },
-  { mode: "artists", labelKey: "stats.mode.artists", fileSuffix: "artists" },
-  { mode: "genres", labelKey: "stats.mode.genres", fileSuffix: "genres" },
-]
+const fileSuffix: Record<ReceiptMode, string> = {
+  all: "all",
+  tracks: "tracks",
+  artists: "artists",
+  genres: "genres",
+}
 
 export default function StatsPage() {
   const bgColor = useCoverStore((s) => s.bgColor)
@@ -24,12 +25,13 @@ export default function StatsPage() {
 
   const [connected, setConnected] = useState<boolean | null>(null)
   const [timeRange, setTimeRange] = useState<TimeRange>("short_term")
+  const [mode, setMode] = useState<ReceiptMode>("all")
   const [stats, setStats] = useState<StatsData | null>(null)
   const [loading, setLoading] = useState(false)
-  const [downloading, setDownloading] = useState<string | null>(null)
+  const [downloading, setDownloading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const canvasRefs = useRef<Map<string, HTMLCanvasElement>>(new Map())
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const t = useT()
 
   const fetchStats = useCallback(async (range: TimeRange) => {
@@ -58,28 +60,28 @@ export default function StatsPage() {
     fetchStats(timeRange)
   }, [timeRange, fetchStats])
 
-  const handleCanvasReady = useCallback((mode: string) => (canvas: HTMLCanvasElement) => {
-    canvasRefs.current.set(mode, canvas)
+  const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
+    canvasRef.current = canvas
   }, [])
 
-  const handleDownload = useCallback(async (mode: string, suffix: string) => {
-    if (downloading) return
-    setDownloading(mode)
+  const handleDownload = useCallback(async () => {
+    if (downloading || !canvasRef.current) return
+    setDownloading(true)
     try {
-      const canvas = canvasRefs.current.get(mode)
-      if (!canvas) return
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"))
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvasRef.current!.toBlob(resolve, "image/png")
+      )
       if (!blob) return
       const url = URL.createObjectURL(blob)
       const link = document.createElement("a")
-      link.download = `spotify-stats-${suffix}-${timeRange}.png`
+      link.download = `spotify-stats-${fileSuffix[mode]}-${timeRange}.png`
       link.href = url
       link.click()
       URL.revokeObjectURL(url)
     } finally {
-      setDownloading(null)
+      setDownloading(false)
     }
-  }, [downloading, timeRange])
+  }, [downloading, mode, timeRange])
 
   if (connected === null) {
     return (
@@ -94,7 +96,7 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       <div className="text-center space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">{t("stats.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("stats.subtitle")}</p>
@@ -114,31 +116,22 @@ export default function StatsPage() {
 
       {stats && !loading && (
         <>
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-4">
             <BgColorPicker />
+            <ModeSelector value={mode} onChange={setMode} />
+            <StatsReceiptCanvas
+              data={stats}
+              bgColor={bgColor}
+              customBgColor={customBgColor}
+              mode={mode}
+              onCanvas={handleCanvasReady}
+            />
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {modes.map(({ mode, labelKey, fileSuffix }) => (
-              <div key={mode} className="flex flex-col items-center gap-3">
-                <StatsReceiptCanvas
-                  data={stats}
-                  bgColor={bgColor}
-                  customBgColor={customBgColor}
-                  mode={mode}
-                  onCanvas={handleCanvasReady(mode)}
-                />
-                <Button
-                  onClick={() => handleDownload(mode, fileSuffix)}
-                  disabled={downloading === mode}
-                  size="sm"
-                  variant="secondary"
-                >
-                  <Download className="size-3.5" />
-                  {downloading === mode ? t("stats.downloading") : t("stats.download")}
-                </Button>
-              </div>
-            ))}
+          <div className="flex justify-center gap-2">
+            <Button onClick={handleDownload} disabled={downloading} size="sm">
+              <Download className="size-4" />
+              {downloading ? t("stats.downloading") : t("stats.download")}
+            </Button>
           </div>
         </>
       )}

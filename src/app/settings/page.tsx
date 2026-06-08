@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useThemeStore, type AccentColor } from "@/stores/theme-store"
 import { cn } from "@/lib/utils"
-import { Check, Trash2, AlertTriangle, Loader2 } from "lucide-react"
+import { Check, Trash2, AlertTriangle, Loader2, Music, Unlink } from "lucide-react"
 import { useT } from "@/lib/i18n/use-t"
 import { Button } from "@/components/ui/button"
 
@@ -24,6 +24,19 @@ export default function SettingsPage() {
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [spotifyConnected, setSpotifyConnected] = useState(false)
+  const [spotifyLoading, setSpotifyLoading] = useState(true)
+  const [confirmingDisconnect, setConfirmingDisconnect] = useState(false)
+  const [disconnecting, setDisconnecting] = useState(false)
+  const [disconnectError, setDisconnectError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch("/api/spotify/connection")
+      .then((res) => res.json())
+      .then((data) => setSpotifyConnected(data.connected))
+      .catch(() => setSpotifyConnected(false))
+      .finally(() => setSpotifyLoading(false))
+  }, [])
 
   const handleDeleteAccount = async () => {
     if (!confirmingDelete) {
@@ -46,6 +59,28 @@ export default function SettingsPage() {
       setConfirmingDelete(false)
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const handleDisconnectSpotify = async () => {
+    if (!confirmingDisconnect) {
+      setConfirmingDisconnect(true)
+      return
+    }
+
+    setDisconnecting(true)
+    setDisconnectError(null)
+
+    try {
+      const res = await fetch("/api/spotify/connection", { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      setSpotifyConnected(false)
+      setConfirmingDisconnect(false)
+    } catch {
+      setDisconnectError(t("settings.spotify.disconnect.error"))
+      setConfirmingDisconnect(false)
+    } finally {
+      setDisconnecting(false)
     }
   }
 
@@ -104,6 +139,70 @@ export default function SettingsPage() {
               )
             })}
           </div>
+        </section>
+
+        <hr className="border-border" />
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Music className="size-4" />
+              {t("settings.spotify")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {t("settings.spotify.description")}
+            </p>
+          </div>
+
+          {spotifyLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              <span>...</span>
+            </div>
+          ) : spotifyConnected ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-emerald-500">
+                <span className="size-2 rounded-full bg-emerald-500" />
+                <span className="font-medium">{t("settings.spotify.connected")}</span>
+              </div>
+
+              {disconnectError && (
+                <p className="text-xs text-destructive">{disconnectError}</p>
+              )}
+
+              {confirmingDisconnect && (
+                <motion.p
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-sm font-medium text-destructive"
+                >
+                  {t("settings.spotify.disconnect.confirm")}
+                </motion.p>
+              )}
+
+              <Button
+                onClick={handleDisconnectSpotify}
+                variant="outline"
+                disabled={disconnecting}
+                className="gap-2"
+              >
+                {disconnecting ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Unlink className="size-4" />
+                )}
+                {t("settings.spotify.disconnect")}
+              </Button>
+            </div>
+          ) : (
+            <a
+              href="/auth/spotify"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-primary text-primary-foreground text-sm font-medium h-9 gap-1.5 px-4 hover:bg-primary/80 transition-colors w-fit"
+            >
+              <Music className="size-4" />
+              {t("settings.spotify.connect")}
+            </a>
+          )}
         </section>
 
         <hr className="border-border" />

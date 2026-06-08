@@ -14,6 +14,7 @@
 3. Usar siempre `pnpm` para gestión de paquetes.
 4. Seguir la estructura de carpetas definida en `context.md`.
 5. Para componentes de UI base, usar `pnpm dlx shadcn@latest add <component>`.
+6. **NUNCA hacer stage ni commit sin aprobación explícita del usuario.** Cada cambio debe presentarse con un `git diff` y un resumen de lo que se hizo para que el usuario lo apruebe antes de continuar.
 
 ## Antes de Finalizar
 

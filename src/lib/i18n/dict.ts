@@ -451,6 +451,38 @@ export const dict = {
     es: "Cuenta eliminada. Redirigiendo...",
     en: "Account deleted. Redirecting...",
   },
+  "settings.spotify": {
+    es: "Conexión con Spotify",
+    en: "Spotify Connection",
+  },
+  "settings.spotify.description": {
+    es: "Vincula tu cuenta de Spotify para ver tus estadísticas musicales.",
+    en: "Link your Spotify account to see your music stats.",
+  },
+  "settings.spotify.connected": {
+    es: "Spotify conectado",
+    en: "Spotify connected",
+  },
+  "settings.spotify.notConnected": {
+    es: "Spotify no conectado",
+    en: "Spotify not connected",
+  },
+  "settings.spotify.connect": {
+    es: "Conectar Spotify",
+    en: "Connect Spotify",
+  },
+  "settings.spotify.disconnect": {
+    es: "Desconectar Spotify",
+    en: "Disconnect Spotify",
+  },
+  "settings.spotify.disconnect.confirm": {
+    es: "¿Desconectar Spotify? Se eliminarán tus datos de estadísticas.",
+    en: "Disconnect Spotify? Your stats data will be removed.",
+  },
+  "settings.spotify.disconnect.error": {
+    es: "Error al desconectar. Intenta de nuevo.",
+    en: "Error disconnecting. Try again.",
+  },
 } as const
 
 export type DictKey = keyof typeof dict

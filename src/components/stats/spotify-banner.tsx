@@ -19,15 +19,17 @@ export function SpotifyBanner() {
           setConnected(false)
           return
         }
+        if (!res.ok) {
+          return
+        }
         const data = await res.json()
         if (data.error) {
-          setConnected(false)
           return
         }
         setConnected(true)
         setStats(data)
       })
-      .catch(() => setConnected(false))
+      .catch(() => {})
   }, [])
 
   if (connected === null) return null
