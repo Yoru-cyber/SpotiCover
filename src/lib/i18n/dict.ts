@@ -387,6 +387,30 @@ export const dict = {
     es: "Conectar Spotify",
     en: "Connect Spotify",
   },
+  "stats.banner.connect": {
+    es: "Vincula tu Spotify",
+    en: "Link your Spotify",
+  },
+  "stats.banner.connect.desc": {
+    es: "Descubre tus canciones y artistas más escuchados.",
+    en: "Discover your most played songs and artists.",
+  },
+  "stats.banner.summary": {
+    es: "Tus estadísticas",
+    en: "Your stats",
+  },
+  "stats.banner.summary.desc": {
+    es: "Top mensual basado en tu actividad",
+    en: "Monthly top based on your activity",
+  },
+  "stats.banner.track": {
+    es: "Canción",
+    en: "Track",
+  },
+  "stats.banner.artist": {
+    es: "Artista",
+    en: "Artist",
+  },
   "settings.deleteAccount": {
     es: "Eliminar cuenta",
     en: "Delete account",

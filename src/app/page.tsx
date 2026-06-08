@@ -4,6 +4,7 @@ import { Suspense, useEffect } from "react"
 import { motion } from "framer-motion"
 import { TrackInput } from "@/components/cover/track-input"
 import { CoverPreview } from "@/components/cover/cover-preview"
+import { SpotifyBanner } from "@/components/stats/spotify-banner"
 import { useCoverStore } from "@/stores/cover-store"
 import { useSearchParams } from "next/navigation"
 import { useT } from "@/lib/i18n/use-t"
@@ -36,6 +37,8 @@ function HomeContent() {
             {t("home.subtitle")}
           </p>
         </motion.div>
+
+        <SpotifyBanner />
 
         <TrackInput />
 
